@@ -35,7 +35,7 @@ public class MDCRequestDataFilter implements Filter {
 				MDC.put("req.user", user);
 			}
 			String accept = httpServletRequest.getHeader("Accept");
-			if (accept != null) {
+			if (accept != null && !accept.startsWith("text/html")) {
 				MDC.put("req.accept", accept);
 			}
 			String referer = httpServletRequest.getHeader("Referer");

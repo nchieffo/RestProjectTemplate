@@ -5,9 +5,12 @@
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.out</target>
 		<encoder>
-			<pattern>%-45(%d [%thread]) %-5level %-75(%class{32}.%method\(%file:%line\)) %msg%n</pattern>
+			<pattern>%-5level %class{32}.%method\(%file:%line\) %mdc%n%msg%n</pattern>
 		</encoder>
 	</appender>
+	
+	<!-- TODO inserire gli appender su file -->
+<!-- 	<pattern>%-45(%d [%thread]) %-5level %-75(%class{32}.%method\(%file:%line\)) %n %mdc%n %msg%n</pattern> -->
 
 	<appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
 		<sessionViaJNDI>true</sessionViaJNDI>
