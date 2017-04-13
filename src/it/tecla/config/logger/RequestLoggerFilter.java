@@ -1,7 +1,6 @@
 package it.tecla.config.logger;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.Filter;
@@ -16,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-public class MDCRequestDataFilter implements Filter {
+public class RequestLoggerFilter implements Filter {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(MDCRequestDataFilter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RequestLoggerFilter.class);
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -31,28 +30,53 @@ public class MDCRequestDataFilter implements Filter {
 		if (request instanceof HttpServletRequest) {
 			HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 			
-			MDC.put("req.uuid", UUID.randomUUID().toString());
+			String uuid = UUID.randomUUID().toString();
+			String user = httpServletRequest.getRemoteUser();
+			
+			StringBuilder logMessage = new StringBuilder();
+			logMessage.append("\n");
+			
+			MDC.put("req.uuid", uuid);
 			MDC.put("req.method", httpServletRequest.getMethod());
 			MDC.put("req.requestURI", httpServletRequest.getRequestURI());
+			
+			logMessage.append(httpServletRequest.getMethod());
+			logMessage.append(" ");
+			logMessage.append(httpServletRequest.getRequestURI());
+			
 			if (httpServletRequest.getQueryString() != null) {
 				MDC.put("req.queryString", httpServletRequest.getQueryString());
+				logMessage.append("?");
+				logMessage.append(httpServletRequest.getQueryString());
 			}
-			String user = httpServletRequest.getRemoteUser();
+			logMessage.append("\n");
+			
+			logMessage.append("Request UUID = ");
+			logMessage.append(uuid);
+			logMessage.append("\n");
+			
 			if (user != null) {
 				MDC.put("req.user", user);
+				logMessage.append("request user = ");
+				logMessage.append(user);
+				logMessage.append("\n");
 			}
 			String accept = httpServletRequest.getHeader("Accept");
 			if (accept != null && !accept.startsWith("text/html")) {
 				MDC.put("req.accept", accept);
+				logMessage.append("Accept = ");
+				logMessage.append(accept);
+				logMessage.append("\n");
 			}
 			String referer = httpServletRequest.getHeader("Referer");
 			if (referer != null) {
 				MDC.put("req.referer", referer);
+				logMessage.append("Referer = ");
+				logMessage.append(referer);
+				logMessage.append("\n");
 			}
 			
-			for (Map.Entry<String, String> entry : MDC.getCopyOfContextMap().entrySet()) {
-				LOGGER.debug("{} = {}", entry.getKey(), entry.getValue());
-			}
+			LOGGER.debug(logMessage.toString());
 		}
 		
 		try {

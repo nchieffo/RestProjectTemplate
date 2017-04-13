@@ -6,11 +6,11 @@
 	<display-name>RestProjectTemplate</display-name>
 	
 	<filter>
-		<filter-name>MDCRequestDataFilter</filter-name>
-		<filter-class>it.tecla.config.logger.MDCRequestDataFilter</filter-class>
+		<filter-name>RequestLoggerFilter</filter-name>
+		<filter-class>it.tecla.config.logger.RequestLoggerFilter</filter-class>
 	</filter>
 	<filter-mapping>
-		<filter-name>MDCRequestDataFilter</filter-name>
+		<filter-name>RequestLoggerFilter</filter-name>
 		<url-pattern>/api/*</url-pattern>
 	</filter-mapping> 
 
