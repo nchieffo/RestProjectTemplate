@@ -1,5 +1,7 @@
 package it.tecla.examples.logging;
 
+import io.swagger.annotations.Api;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -7,6 +9,7 @@ import javax.ws.rs.Produces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Api
 @Path("/logger")
 @Produces("application/json")
 public class LoggerRestService {

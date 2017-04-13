@@ -16,6 +16,8 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 @Produces({"application/json", "text/json"})
 public class JaxRsJacksonProvider extends JacksonJsonProvider {
 	
+	// TODO rifare da capo usando le nuove classi di swagger
+	
 	public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SZ";
 
 	public JaxRsJacksonProvider() {
