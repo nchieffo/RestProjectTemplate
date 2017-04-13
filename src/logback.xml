@@ -2,42 +2,105 @@
 <!DOCTYPE configuration>
 <configuration>
 
+	<property name="LOGS_HOME" value="logs/tecla" />
+	<property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %class.%method\\(%file:%line\\) - %msg%n" />
+
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<target>System.out</target>
 		<encoder>
-			<pattern>%-5level %class{32}.%method\(%file:%line\) %mdc%n%msg%n</pattern>
+			<pattern>${LOG_PATTERN}</pattern>
 		</encoder>
 	</appender>
 	
-	<!-- TODO inserire gli appender su file -->
-<!-- 	<pattern>%-45(%d [%thread]) %-5level %-75(%class{32}.%method\(%file:%line\)) %n %mdc%n %msg%n</pattern> -->
+	<appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOGS_HOME}/debug.log</file>
+		<append>true</append>
+				
+		<encoder>
+			<pattern>${LOG_PATTERN}</pattern>
+		</encoder>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOGS_HOME}/archive/debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- keep 30 days' worth of history capped at 1GB total size -->
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
+	
+	<appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOGS_HOME}/info.log</file>
+		<append>true</append>
+				
+		<encoder>
+			<pattern>${LOG_PATTERN}</pattern>
+		</encoder>
+		
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+ 			<level>INFO</level>
+		</filter>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOGS_HOME}/archive/info.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- keep 30 days' worth of history capped at 1GB total size -->
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
+	
+	<appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOGS_HOME}/error.log</file>
+		<append>true</append>
+				
+		<encoder>
+			<pattern>${LOG_PATTERN}</pattern>
+		</encoder>
+		
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+ 			<level>ERROR</level>
+		</filter>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOGS_HOME}/archive/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<!-- keep 30 days' worth of history capped at 1GB total size -->
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+	</appender>
 
 	<appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
 		<sessionViaJNDI>true</sessionViaJNDI>
 		<jndiLocation>mail/smtp</jndiLocation>
 		<to>n.chieffo@tecla.it</to>
-		<from>test@tecla.it</from>
+		<from>errors@tecla.it</from>
 		<subject>LOGBACK ERROR NOTIFICATION</subject>
 		<asynchronousSending>false</asynchronousSending>
+		
 		<layout class="ch.qos.logback.classic.html.HTMLLayout">
 			<pattern>%date%thread%level%class%method%msg%file%line%mdc</pattern>
 		</layout>
+		
 		<cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
 			<bufferSize>150</bufferSize>
 		</cyclicBufferTracker>
 		
-		<!-- TODO implementare il descriminator -->
-<!-- 		<discriminator class="ch.qos.logback.classic.sift.MDCBasedDiscriminator"> -->
-<!-- 			<key>req.remoteHost</key> -->
-<!-- 			<defaultValue>default</defaultValue> -->
-<!-- 		</discriminator> -->
-
+		<discriminator class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
+			<key>req.uuid</key>
+			<defaultValue>default</defaultValue>
+		</discriminator>
 	</appender>
 
 	<logger name="it.tecla" level="TRACE" />
 
-	<root level="debug">
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="EMAIL" />
+		<appender-ref ref="DEBUG_FILE" />
+		<appender-ref ref="INFO_FILE" />
+		<appender-ref ref="ERROR_FILE" />
 	</root>
+	
 </configuration>
