@@ -10,11 +10,33 @@
 	<display-name>RestProjectTemplate</display-name>
 	
 	<filter>
+		<description>Questo filtro si occupa di loggare la request e di salvare i dati estratti sulla MDC del logger</description>
 		<filter-name>RequestLoggerFilter</filter-name>
 		<filter-class>it.tecla.config.logger.RequestLoggerFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>RequestLoggerFilter</filter-name>
 		<url-pattern>/api/*</url-pattern>
-	</filter-mapping> 
+	</filter-mapping>
+	 
+	<servlet>
+		<description>Questa servlet si occupa di fare redirect su swagger-ui</description>
+		<servlet-name>SwaggerUiRedirect</servlet-name>
+		<servlet-class>it.tecla.config.rest.SwaggerConfig</servlet-class>
+		<init-param>
+			<param-name>swagger-ui.version</param-name>
+			<param-value>3.0.5</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SwaggerUiRedirect</servlet-name>
+		<url-pattern>/swagger/*</url-pattern>
+		<url-pattern>/swagger-ui/*</url-pattern>
+	</servlet-mapping>
+	
+	<listener>
+		<display-name>SwaggerConfig</display-name>
+		<listener-class>it.tecla.config.rest.SwaggerConfig</listener-class>
+	</listener>
+	
 </web-app>
