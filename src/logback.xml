@@ -5,11 +5,15 @@
 	<property name="LOGS_HOME" value="logs/tecla" />
 	<property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.S} [%thread] %-5level %class.%method\\(%file:%line\\) - %msg%n" />
 
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<target>System.out</target>
-		<encoder>
-			<pattern>${LOG_PATTERN}</pattern>
-		</encoder>
+<!-- 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"> -->
+<!-- 		<target>System.out</target> -->
+<!-- 		<encoder> -->
+<!-- 			<pattern>${LOG_PATTERN}</pattern> -->
+<!-- 		</encoder> -->
+<!-- 	</appender> -->
+	
+	<appender name="JAVA_UTIL_LOGGING" class="it.tecla.config.logger.JavaUtilLoggingAppender">
+		<pattern>%class.%method\(%file:%line\) - %msg</pattern>
 	</appender>
 	
 	<appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -96,7 +100,7 @@
 	<logger name="it.tecla" level="TRACE" />
 
 	<root level="INFO">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="JAVA_UTIL_LOGGING" />
 		<appender-ref ref="EMAIL" />
 		<appender-ref ref="DEBUG_FILE" />
 		<appender-ref ref="INFO_FILE" />
