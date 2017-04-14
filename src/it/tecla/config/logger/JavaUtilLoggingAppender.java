@@ -5,7 +5,6 @@ import java.util.logging.Level;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.spi.FilterReply;
 
 public class JavaUtilLoggingAppender<E extends ILoggingEvent> extends AppenderBase<E> {
 
@@ -19,8 +18,7 @@ public class JavaUtilLoggingAppender<E extends ILoggingEvent> extends AppenderBa
 		java.util.logging.Level julLevel = toJavaLevel(event.getLevel());
 		boolean isLoggable = julLogger.isLoggable(julLevel);
 		
-		// se non è loggabile per java.util.logging potrebbe esserlo per logback
-		if (!isLoggable && FilterReply.ACCEPT.equals(super.getFilterChainDecision(event))) {
+		if (!isLoggable) {
 			julLevel = Level.INFO;
 		}
 		

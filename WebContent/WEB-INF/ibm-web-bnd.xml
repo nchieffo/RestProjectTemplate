@@ -7,4 +7,5 @@
 
 	<virtual-host name="default_host" />
 
+	<resource-ref name="mail/Session" binding-name="mail/local" />
 </web-bnd>

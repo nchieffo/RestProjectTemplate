@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration>
-<configuration>
+<configuration debug="true" scanPeriod="30 seconds">
 
 	<property name="LOGS_HOME" value="logs/tecla" />
-	<property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.S} [%thread] %-5level %class.%method\\(%file:%line\\) - %msg%n" />
 
-<!-- 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"> -->
-<!-- 		<target>System.out</target> -->
-<!-- 		<encoder> -->
-<!-- 			<pattern>${LOG_PATTERN}</pattern> -->
-<!-- 		</encoder> -->
-<!-- 	</appender> -->
-	
-	<appender name="JAVA_UTIL_LOGGING" class="it.tecla.config.logger.JavaUtilLoggingAppender">
-		<pattern>%class.%method\(%file:%line\) - %msg</pattern>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<target>System.out</target>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.S} [%thread][req.uuid %mdc{req.uuid}] %-5level %class.%method\(%file:%line\) - %msg%n</pattern>
+		</encoder>
 	</appender>
 	
-	<appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOGS_HOME}/debug.log</file>
+<!-- 	<appender name="JAVA_UTIL_LOGGING" class="it.tecla.config.logger.JavaUtilLoggingAppender"> -->
+<!-- 		<pattern>[%thread][req.uuid %mdc{req.uuid}] %class.%method\(%file:%line\) - %msg</pattern> -->
+<!-- 	</appender> -->
+	
+	<appender name="TRACE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOGS_HOME}/trace.log</file>
 		<append>true</append>
 				
 		<encoder>
-			<pattern>${LOG_PATTERN}</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.S} [%thread][req.uuid %mdc{req.uuid}] %-5level %class.%method\(%file:%line\) - %msg%n</pattern>
 		</encoder>
 		
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>${LOGS_HOME}/archive/debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>${LOGS_HOME}/archive/trace.%d{yyyy-MM-dd}.log</fileNamePattern>
 			<!-- keep 30 days' worth of history capped at 1GB total size -->
 			<maxHistory>30</maxHistory>
 			<totalSizeCap>1GB</totalSizeCap>
@@ -38,7 +37,7 @@
 		<append>true</append>
 				
 		<encoder>
-			<pattern>${LOG_PATTERN}</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.S} [%thread][req.uuid %mdc{req.uuid}] %-5level %class.%method\(%file:%line\) - %msg%n</pattern>
 		</encoder>
 		
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -59,7 +58,7 @@
 		<append>true</append>
 				
 		<encoder>
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.S} [%thread] %-5level %class.%method\(%file:%line\)%n%mdc{req.logMessage}%n%n%msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.S} [%thread][req.uuid %mdc{req.uuid}] %-5level %class.%method\(%file:%line\)%n%mdc{req.logMessage}%n%n%msg%n</pattern>
 		</encoder>
 		
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -77,20 +76,21 @@
 
 	<appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
 		<sessionViaJNDI>true</sessionViaJNDI>
-		<jndiLocation>mail/smtp</jndiLocation>
-		<to>n.chieffo@tecla.it</to>
+		<jndiLocation>java:comp/env/mail/Session</jndiLocation>
+		<to>n.chieffo@tecla.it,tecla@tecla.local</to>
 		<from>errors@tecla.it</from>
 		<subject>LOGBACK ERROR NOTIFICATION</subject>
 		<asynchronousSending>false</asynchronousSending>
 		
 		<layout class="ch.qos.logback.classic.html.HTMLLayout">
-			<pattern>%date%thread%level%class%method%msg%file%line%mdc</pattern>
+			<pattern>%date%level%class%method%line%msg</pattern>
 		</layout>
 		
 		<cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
 			<bufferSize>150</bufferSize>
 		</cyclicBufferTracker>
 		
+		<!-- grazie a questo discriminator raccolgo soltanto i log relativi alla request corrente (funziona in accoppiata con il RequestLoggerFilter che setta req.uuid -->
 		<discriminator class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
 			<key>req.uuid</key>
 			<defaultValue>default</defaultValue>
@@ -100,9 +100,10 @@
 	<logger name="it.tecla" level="TRACE" />
 
 	<root level="INFO">
-		<appender-ref ref="JAVA_UTIL_LOGGING" />
+		<appender-ref ref="STDOUT" />
+<!-- 		<appender-ref ref="JAVA_UTIL_LOGGING" /> -->
 		<appender-ref ref="EMAIL" />
-		<appender-ref ref="DEBUG_FILE" />
+		<appender-ref ref="TRACE_FILE" />
 		<appender-ref ref="INFO_FILE" />
 		<appender-ref ref="ERROR_FILE" />
 	</root>
