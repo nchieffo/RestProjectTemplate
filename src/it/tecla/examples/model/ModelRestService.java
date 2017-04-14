@@ -29,4 +29,20 @@ public class ModelRestService {
 		
 	}
 	
+	@GET
+	@Path("/example2")
+	public Model example2() {
+		
+		Model model = new Model();
+		model.setBooleanValue(true);
+		model.setDateValue(new Date());
+		model.setDoubleValue(2.2);
+		model.setFloatValue(2.2f);
+		model.setIntValue(2);
+		model.setStringValue("string2");
+
+		return model;
+		
+	}
+	
 }
