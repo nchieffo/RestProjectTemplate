@@ -17,7 +17,7 @@
 	<filter>
 		<description>Forza il character encoding sulla request se non specificato</description>
 		<filter-name>RequestEncodingFilter</filter-name>
-		<filter-class>it.tecla.config.web.RequestEncodingFilter</filter-class>
+		<filter-class>it.tecla.utils.web.RequestEncodingFilter</filter-class>
 		<init-param>
 			<param-name>characterEncoding</param-name>
 			<param-value>UTF-8</param-value>
@@ -30,7 +30,7 @@
 	<filter>
 		<description>Questo filtro si occupa di loggare la request e di salvare i dati estratti sulla MDC del logger</description>
 		<filter-name>RequestLoggerFilter</filter-name>
-		<filter-class>it.tecla.config.web.RequestLoggerFilter</filter-class>
+		<filter-class>it.tecla.utils.web.RequestLoggerFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>RequestLoggerFilter</filter-name>
@@ -40,7 +40,7 @@
 	<servlet>
 		<description>Questa servlet si occupa di fare il bootstrap di swagger</description>
 		<servlet-name>SwaggerBootstrap</servlet-name>
-		<servlet-class>it.tecla.config.rest.SwaggerBootstrap</servlet-class>
+		<servlet-class>it.tecla.utils.rest.SwaggerBootstrap</servlet-class>
 		<init-param>
 			<param-name>swagger-ui.version</param-name>
 			<param-value>2.2.10-1</param-value>
@@ -65,7 +65,7 @@
 			<param-name>title</param-name>
 			<param-value>Rest Project Template</param-value>
 		</init-param>
-		<load-on-startup>2</load-on-startup>
+		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>SwaggerBootstrap</servlet-name>
@@ -76,7 +76,8 @@
 	<servlet>
 		<description>Questa servlet stampa le eccezioni</description>
 		<servlet-name>ErrorHandlerServlet</servlet-name>
-		<servlet-class>it.tecla.config.web.ErrorHandlerServlet</servlet-class>
+		<servlet-class>it.tecla.utils.web.ErrorHandlerServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ErrorHandlerServlet</servlet-name>

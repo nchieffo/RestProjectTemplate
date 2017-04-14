@@ -1,4 +1,4 @@
-package it.tecla.config.logger.logback;
+package it.tecla.utils.logger.logback;
 
 import java.util.logging.Level;
 

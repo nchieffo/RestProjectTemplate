@@ -1,4 +1,4 @@
-package it.tecla.config.logger;
+package it.tecla.utils.logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

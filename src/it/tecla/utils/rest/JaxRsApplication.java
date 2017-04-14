@@ -1,4 +1,4 @@
-package it.tecla.config.rest;
+package it.tecla.utils.rest;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

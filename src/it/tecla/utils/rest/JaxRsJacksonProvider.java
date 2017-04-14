@@ -1,4 +1,4 @@
-package it.tecla.config.rest;
+package it.tecla.utils.rest;
 
 import java.io.IOException;
 import java.io.InputStream;

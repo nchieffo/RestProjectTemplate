@@ -1,4 +1,4 @@
-package it.tecla.config.rest;
+package it.tecla.utils.rest;
 
 import io.swagger.jaxrs.config.BeanConfig;
 

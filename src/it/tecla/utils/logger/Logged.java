@@ -1,4 +1,4 @@
-package it.tecla.config.logger;
+package it.tecla.utils.logger;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
