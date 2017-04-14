@@ -20,23 +20,39 @@
 	</filter-mapping>
 	 
 	<servlet>
-		<description>Questa servlet si occupa di fare redirect su swagger-ui</description>
-		<servlet-name>SwaggerUiRedirect</servlet-name>
-		<servlet-class>it.tecla.config.rest.SwaggerConfig</servlet-class>
+		<description>Questa servlet si occupa di fare il bootstrap di swagger</description>
+		<servlet-name>SwaggerBootstrap</servlet-name>
+		<servlet-class>it.tecla.config.rest.SwaggerBootstrap</servlet-class>
 		<init-param>
 			<param-name>swagger-ui.version</param-name>
 			<param-value>3.0.5</param-value>
 		</init-param>
+		<init-param>
+			<param-name>version</param-name>
+			<param-value>1.0</param-value>
+		</init-param>
+		<init-param>
+			<param-name>basePath</param-name>
+			<param-value>/api</param-value>
+		</init-param>
+		<init-param>
+			<param-name>resourcePackages</param-name>
+			<param-value>io.swagger.resources,it.tecla</param-value>
+		</init-param>
+		<init-param>
+			<param-name>description</param-name>
+			<param-value>Servizio di TEST fatto come esempio di partenza</param-value>
+		</init-param>
+		<init-param>
+			<param-name>title</param-name>
+			<param-value>Rest Project Template</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>SwaggerUiRedirect</servlet-name>
+		<servlet-name>SwaggerBootstrap</servlet-name>
 		<url-pattern>/swagger/*</url-pattern>
 		<url-pattern>/swagger-ui/*</url-pattern>
 	</servlet-mapping>
-	
-	<listener>
-		<display-name>SwaggerConfig</display-name>
-		<listener-class>it.tecla.config.rest.SwaggerConfig</listener-class>
-	</listener>
 	
 </web-app>

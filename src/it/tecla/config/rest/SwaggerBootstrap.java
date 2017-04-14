@@ -5,35 +5,32 @@ import io.swagger.jaxrs.config.BeanConfig;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class SwaggerConfig extends HttpServlet implements ServletContextListener {
+public class SwaggerBootstrap extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static String contextPath;
-
+	private String contextPath;
+	
 	@Override
-	public void contextInitialized(ServletContextEvent sce) {
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
 		
-		contextPath = sce.getServletContext().getContextPath();
+		contextPath = config.getServletContext().getContextPath();
 		
 		BeanConfig beanConfig = new BeanConfig();
-		beanConfig.setVersion("1.0");
-		beanConfig.setBasePath(contextPath + "/api");
-		// TODO ottimizzare
-		beanConfig.setResourcePackage("io.swagger.resources,it.tecla");
+		beanConfig.setVersion(config.getInitParameter("version"));
+		beanConfig.setBasePath(contextPath + config.getInitParameter("basePath"));
+		beanConfig.setResourcePackage(config.getInitParameter("resourcePackages"));
+		beanConfig.setTitle(config.getInitParameter("title"));
+		beanConfig.setDescription(config.getInitParameter("description"));
 		beanConfig.setScan(true);
-	}
-
-	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		
+		beanConfig.setPrettyPrint(true);
 	}
 
 	@Override
