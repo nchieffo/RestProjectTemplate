@@ -11,9 +11,9 @@
 		</encoder>
 	</appender>
 	
-<!-- 	<appender name="JAVA_UTIL_LOGGING" class="it.tecla.config.logger.JavaUtilLoggingAppender"> -->
-<!-- 		<pattern>[%thread][req.uuid %mdc{req.uuid}] %class.%method\(%file:%line\) - %msg</pattern> -->
-<!-- 	</appender> -->
+	<appender name="JAVA_UTIL_LOGGING" class="it.tecla.config.logger.JavaUtilLoggingAppender">
+		<pattern>%d{yyyy-MM-dd HH:mm:ss.S} [%thread][req.uuid %mdc{req.uuid}] %-5level %class.%method\(%file:%line\) - %msg%n</pattern>
+	</appender>
 	
 	<appender name="TRACE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOGS_HOME}/trace.log</file>
@@ -100,8 +100,8 @@
 	<logger name="it.tecla" level="TRACE" />
 
 	<root level="INFO">
-		<appender-ref ref="STDOUT" />
-<!-- 		<appender-ref ref="JAVA_UTIL_LOGGING" /> -->
+<!-- 		<appender-ref ref="STDOUT" /> -->
+		<appender-ref ref="JAVA_UTIL_LOGGING" />
 		<appender-ref ref="EMAIL" />
 		<appender-ref ref="TRACE_FILE" />
 		<appender-ref ref="INFO_FILE" />

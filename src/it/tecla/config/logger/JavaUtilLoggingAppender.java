@@ -18,11 +18,7 @@ public class JavaUtilLoggingAppender<E extends ILoggingEvent> extends AppenderBa
 		java.util.logging.Level julLevel = toJavaLevel(event.getLevel());
 		boolean isLoggable = julLogger.isLoggable(julLevel);
 		
-		if (!isLoggable) {
-			julLevel = Level.INFO;
-		}
-		
-		if (julLogger.isLoggable(julLevel)) {
+		if (isLoggable) {
 			PatternLayout patternLayout = new PatternLayout();
 			patternLayout.setContext(this.context);
 			patternLayout.setPattern(getPattern());
