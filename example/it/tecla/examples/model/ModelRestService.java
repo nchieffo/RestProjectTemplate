@@ -1,6 +1,7 @@
 package it.tecla.examples.model;
 
 import io.swagger.annotations.Api;
+import it.tecla.config.logger.Logged;
 
 import java.util.Date;
 
@@ -11,6 +12,7 @@ import javax.ws.rs.Produces;
 @Api("Model")
 @Path("/model")
 @Produces("application/json")
+@Logged
 public class ModelRestService {
 
 	@GET

@@ -2,17 +2,35 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0">
+	
+	<display-name>RestProjectTemplate</display-name>
 
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 	
-	<display-name>RestProjectTemplate</display-name>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/error-handler</location>
+	</error-page>
 	
+	<filter>
+		<description>Forza il character encoding sulla request se non specificato</description>
+		<filter-name>RequestEncodingFilter</filter-name>
+		<filter-class>it.tecla.config.web.RequestEncodingFilter</filter-class>
+		<init-param>
+			<param-name>characterEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>RequestEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 	<filter>
 		<description>Questo filtro si occupa di loggare la request e di salvare i dati estratti sulla MDC del logger</description>
 		<filter-name>RequestLoggerFilter</filter-name>
-		<filter-class>it.tecla.config.logger.RequestLoggerFilter</filter-class>
+		<filter-class>it.tecla.config.web.RequestLoggerFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>RequestLoggerFilter</filter-name>
@@ -54,6 +72,16 @@
 		<url-pattern>/swagger/*</url-pattern>
 		<url-pattern>/swagger-ui/*</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<description>Questa servlet stampa le eccezioni</description>
+		<servlet-name>ErrorHandlerServlet</servlet-name>
+		<servlet-class>it.tecla.config.web.ErrorHandlerServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ErrorHandlerServlet</servlet-name>
+		<url-pattern>/error-handler</url-pattern>
+	</servlet-mapping>
 	
 	<resource-ref>
 		<res-ref-name>mail/Session</res-ref-name>
@@ -61,6 +89,4 @@
 		<res-auth>Container</res-auth>
 		<res-sharing-scope>Shareable</res-sharing-scope>
 	</resource-ref>
-
-	
 </web-app>

@@ -1,8 +1,10 @@
-package it.tecla.config.logger;
+package it.tecla.config.web;
 
 import java.io.IOException;
 import java.util.UUID;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -19,8 +21,18 @@ public class RequestLoggerFilter implements Filter {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RequestLoggerFilter.class);
 
+	private String earName;
+	private String warName;
+	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
+		
+		try {
+			earName = (String) InitialContext.doLookup("java:app/AppName");
+			warName = (String) InitialContext.doLookup("java:module/ModuleName");
+		} catch (NamingException ex) {
+			throw new RuntimeException(ex);
+		}
 		
 	}
 
@@ -29,6 +41,9 @@ public class RequestLoggerFilter implements Filter {
 		
 		if (request instanceof HttpServletRequest) {
 			HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+			
+			MDC.put("earName", earName);
+			MDC.put("warName", warName);
 			
 			MDC.put("req.uuid", UUID.randomUUID().toString());
 			MDC.put("req.method", httpServletRequest.getMethod());
@@ -63,6 +78,8 @@ public class RequestLoggerFilter implements Filter {
 		try {
 			chain.doFilter(request, response);
 		} finally {
+			MDC.remove("earName");
+			MDC.remove("warName");
 			MDC.remove("req.uuid");
 			MDC.remove("req.method");
 			MDC.remove("req.requestURI");
@@ -70,6 +87,7 @@ public class RequestLoggerFilter implements Filter {
 			MDC.remove("req.user");
 			MDC.remove("req.accept");
 			MDC.remove("req.referer");
+			MDC.remove("req.logMessage");
 		}
 	}
 
