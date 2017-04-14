@@ -36,24 +36,28 @@ public class RequestLoggerFilter implements Filter {
 			
 			if (httpServletRequest.getQueryString() != null) {
 				MDC.put("req.queryString", httpServletRequest.getQueryString());
+				LOGGER.debug("Request: {} {}?{}", httpServletRequest.getMethod(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
+			} else {
+				LOGGER.debug("Request: {} {}", httpServletRequest.getMethod(), httpServletRequest.getRequestURI());
 			}
 			
 			if (httpServletRequest.getRemoteUser() != null) {
 				MDC.put("req.user", httpServletRequest.getRemoteUser());
+				LOGGER.trace("Request - Remote User: {}", httpServletRequest.getRemoteUser());
 			}
 			String accept = httpServletRequest.getHeader("Accept");
 			if (accept != null && !accept.startsWith("text/html")) {
 				MDC.put("req.accept", accept);
+				LOGGER.trace("Request - Accept: {}", accept);
 			}
 			String referer = httpServletRequest.getHeader("Referer");
 			if (referer != null) {
 				MDC.put("req.referer", referer);
+				LOGGER.trace("Request - Referer: {}", referer);
 			}
 
 			String requestLogMessage = getRequestLogMessage();
 			MDC.put("req.logMessage", requestLogMessage);
-			
-			LOGGER.debug(requestLogMessage.toString());
 		}
 		
 		try {
