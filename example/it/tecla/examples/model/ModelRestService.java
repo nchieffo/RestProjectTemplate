@@ -47,4 +47,10 @@ public class ModelRestService {
 		
 	}
 	
+	@GET
+	@Path("/exception")
+	public void exception() {
+		throw new RuntimeException("error");
+	}
+	
 }

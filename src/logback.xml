@@ -11,7 +11,7 @@
 		</encoder>
 	</appender>
 	
-	<appender name="JAVA_UTIL_LOGGING" class="it.tecla.config.logger.JavaUtilLoggingAppender">
+	<appender name="JAVA_UTIL_LOGGING" class="it.tecla.config.logger.logback.JavaUtilLoggingAppender">
 		<pattern>%d{yyyy-MM-dd HH:mm:ss.S} [%thread][req.uuid %mdc{req.uuid}] %-5level %class.%method\(%file:%line\) - %msg%n</pattern>
 	</appender>
 	
@@ -79,7 +79,7 @@
 		<jndiLocation>java:comp/env/mail/Session</jndiLocation>
 		<to>n.chieffo@tecla.it,tecla@tecla.local</to>
 		<from>errors@tecla.it</from>
-		<subject>LOGBACK ERROR NOTIFICATION</subject>
+		<subject>ERROR NOTIFICATION - %mdc{earName}</subject>
 		<asynchronousSending>false</asynchronousSending>
 		
 		<layout class="ch.qos.logback.classic.html.HTMLLayout">

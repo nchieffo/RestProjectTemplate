@@ -73,10 +73,20 @@ public class RequestLoggerFilter implements Filter {
 
 			String requestLogMessage = getRequestLogMessage();
 			MDC.put("req.logMessage", requestLogMessage);
+
+			request.setAttribute("reqMDC", MDC.getCopyOfContextMap());
 		}
 		
 		try {
 			chain.doFilter(request, response);
+		} catch (Throwable t) {
+			
+			String requestLogMessage = MDC.get("req.logMessage");
+			
+			LOGGER.error("Uncaught exception while executing request {}", requestLogMessage, t);
+			
+			throw new ServletException(t);
+			
 		} finally {
 			MDC.remove("earName");
 			MDC.remove("warName");

@@ -3,6 +3,7 @@ package it.tecla.config.web;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,19 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 public class ErrorHandlerServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ErrorHandlerServlet.class);
-	private static final Marker UNCAUGHT_MARKER = MarkerFactory.getMarker("UNCAUGHT");
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -31,8 +24,6 @@ public class ErrorHandlerServlet extends HttpServlet {
 		String servletName = (String) request.getAttribute("javax.servlet.error.servlet_name");
 		
 		String requestData = getRequestData(t, statusCode, servletName, request);
-
-		LOGGER.error(UNCAUGHT_MARKER, "uncaught exception\n" + requestData, t);
 
 		response.setContentType("text/plain");
 
@@ -45,9 +36,11 @@ public class ErrorHandlerServlet extends HttpServlet {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static String getRequestData(Throwable t, Integer statusCode, String servletName, HttpServletRequest request) {
 		
-		String logMessage = MDC.get("req.logMessage");
+		Map<String, String> reqMdc = (Map<String, String>) request.getAttribute("reqMDC");
+		String logMessage = reqMdc.get("req.logMessage");
 
 		StringBuilder sb = new StringBuilder();
 
@@ -57,7 +50,7 @@ public class ErrorHandlerServlet extends HttpServlet {
 		sb.append("Status Code: " + statusCode + "\n");
 		sb.append("Exception Name: " + t.getClass().getName() + "\n");
 		sb.append(logMessage);
-		sb.append("\n");
+		sb.append("\n\n");
 		
 		return sb.toString();
 	}
