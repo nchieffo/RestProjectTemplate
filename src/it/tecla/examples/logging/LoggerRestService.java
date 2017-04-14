@@ -9,7 +9,7 @@ import javax.ws.rs.Produces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Api
+@Api("Logger")
 @Path("/logger")
 @Produces("application/json")
 public class LoggerRestService {

@@ -8,14 +8,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-@Api
+@Api("Model")
 @Path("/model")
 @Produces("application/json")
 public class ModelRestService {
 
 	@GET
 	@Path("/example")
-	public Model get() {
+	public Model example() {
 		
 		Model model = new Model();
 		model.setBooleanValue(true);
