@@ -30,53 +30,30 @@ public class RequestLoggerFilter implements Filter {
 		if (request instanceof HttpServletRequest) {
 			HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 			
-			String uuid = UUID.randomUUID().toString();
-			String user = httpServletRequest.getRemoteUser();
-			
-			StringBuilder logMessage = new StringBuilder();
-			logMessage.append("\n");
-			
-			MDC.put("req.uuid", uuid);
+			MDC.put("req.uuid", UUID.randomUUID().toString());
 			MDC.put("req.method", httpServletRequest.getMethod());
 			MDC.put("req.requestURI", httpServletRequest.getRequestURI());
 			
-			logMessage.append(httpServletRequest.getMethod());
-			logMessage.append(" ");
-			logMessage.append(httpServletRequest.getRequestURI());
-			
 			if (httpServletRequest.getQueryString() != null) {
 				MDC.put("req.queryString", httpServletRequest.getQueryString());
-				logMessage.append("?");
-				logMessage.append(httpServletRequest.getQueryString());
 			}
-			logMessage.append("\n");
 			
-			logMessage.append("Request UUID = ");
-			logMessage.append(uuid);
-			logMessage.append("\n");
-			
-			if (user != null) {
-				MDC.put("req.user", user);
-				logMessage.append("request user = ");
-				logMessage.append(user);
-				logMessage.append("\n");
+			if (httpServletRequest.getRemoteUser() != null) {
+				MDC.put("req.user", httpServletRequest.getRemoteUser());
 			}
 			String accept = httpServletRequest.getHeader("Accept");
 			if (accept != null && !accept.startsWith("text/html")) {
 				MDC.put("req.accept", accept);
-				logMessage.append("Accept = ");
-				logMessage.append(accept);
-				logMessage.append("\n");
 			}
 			String referer = httpServletRequest.getHeader("Referer");
 			if (referer != null) {
 				MDC.put("req.referer", referer);
-				logMessage.append("Referer = ");
-				logMessage.append(referer);
-				logMessage.append("\n");
 			}
+
+			String requestLogMessage = getRequestLogMessage();
+			MDC.put("req.logMessage", requestLogMessage);
 			
-			LOGGER.debug(logMessage.toString());
+			LOGGER.debug(requestLogMessage.toString());
 		}
 		
 		try {
@@ -95,6 +72,53 @@ public class RequestLoggerFilter implements Filter {
 	@Override
 	public void destroy() {
 		
+	}
+	
+	protected String getRequestLogMessage() {
+
+		String method = MDC.get("req.method");
+		String requestURI = MDC.get("req.requestURI");
+		String queryString = MDC.get("req.queryString");
+		String uuid = MDC.get("req.uuid");
+		String user = MDC.get("req.user");
+		String accept = MDC.get("req.accept");
+		String referer = MDC.get("req.referer");
+
+		StringBuilder logMessage = new StringBuilder();
+		
+		logMessage.append("\n");
+		logMessage.append(method);
+		logMessage.append(" ");
+		logMessage.append(requestURI);
+		
+		if (queryString != null) {
+			logMessage.append("?");
+			logMessage.append(queryString);
+		}
+
+		logMessage.append("\n");
+		logMessage.append("Request UUID = ");
+		logMessage.append(uuid);
+
+		if (user != null) {
+			logMessage.append("\n");
+			logMessage.append("Request user = ");
+			logMessage.append(user);
+		}
+		
+		if (accept != null) {
+			logMessage.append("\n");
+			logMessage.append("Accept = ");
+			logMessage.append(accept);
+		}
+	
+		if (referer != null) {
+			logMessage.append("\n");
+			logMessage.append("Referer = ");
+			logMessage.append(referer);
+		}
+		
+		return logMessage.toString();
 	}
 
 }

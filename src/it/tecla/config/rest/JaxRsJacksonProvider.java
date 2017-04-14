@@ -1,41 +1,84 @@
 package it.tecla.config.rest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 @Provider
 @Consumes({"application/json", "text/json"})
 @Produces({"application/json", "text/json"})
-public class JaxRsJacksonProvider extends JacksonJsonProvider {
-	
-	// TODO rifare da capo usando le nuove classi di swagger
+public class JaxRsJacksonProvider implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 	
 	public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SZ";
-
+	
+	private ObjectMapper mapper = new ObjectMapper();
+	
 	public JaxRsJacksonProvider() {
 		
 		// READER
-		configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		configure(DeserializationConfig.Feature.READ_ENUMS_USING_TO_STRING, true);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
 		
 		// WRITER
-		configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
-		configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, true);
-		configure(SerializationConfig.Feature.WRITE_ENUMS_USING_TO_STRING, true);
-		configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
+		mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+		mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, true);
+		mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+		mapper.setDateFormat(new SimpleDateFormat(DATE_FORMAT));
+		mapper.setSerializationInclusion(Include.ALWAYS);
+	}
+
+	@Override
+	public long getSize(Object value, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		return -1L;
+	}
+
+	@Override
+	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		return isJsonType(mediaType);
+	}
+
+	@Override
+	public void writeTo(Object value, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
 		
-		// TODO sistemare con il formato data di default per swagger
-		locateMapper(null, null).getSerializationConfig().setDateFormat(new SimpleDateFormat(DATE_FORMAT));
-		locateMapper(null, null).getSerializationConfig().setSerializationInclusion(Inclusion.ALWAYS);
+		
+	    mapper.writeValue(entityStream, value);
+	}
+
+	@Override
+	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+		return isJsonType(mediaType);
+	}
+
+	@Override
+	public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException {
+		return mapper.readValue(entityStream, type);
+	}
+	
+	protected boolean isJsonType(MediaType mediaType) {
+		if (mediaType != null) {
+			String subtype = mediaType.getSubtype();
+			return (("json".equalsIgnoreCase(subtype)) || (subtype.endsWith("+json")));
+		}
+
+		return true;
 	}
 
 }
