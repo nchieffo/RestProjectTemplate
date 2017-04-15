@@ -90,7 +90,7 @@
 			<bufferSize>150</bufferSize>
 		</cyclicBufferTracker>
 		
-		<!-- grazie a questo discriminator raccolgo soltanto i log relativi alla request corrente (funziona in accoppiata con il RequestLoggerFilter che setta req.uuid -->
+		<!-- grazie a questo discriminator raccolgo soltanto i log relativi alla request corrente (funziona in accoppiata con il RequestMDCFilter che setta req.uuid -->
 		<discriminator class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
 			<key>req.uuid</key>
 			<defaultValue>default</defaultValue>
@@ -100,8 +100,8 @@
 	<logger name="it.tecla" level="TRACE" />
 
 	<root level="INFO">
-<!-- 		<appender-ref ref="STDOUT" /> -->
-		<appender-ref ref="JAVA_UTIL_LOGGING" />
+		<appender-ref ref="STDOUT" />
+<!-- 		<appender-ref ref="JAVA_UTIL_LOGGING" /> -->
 		<appender-ref ref="EMAIL" />
 		<appender-ref ref="TRACE_FILE" />
 		<appender-ref ref="INFO_FILE" />

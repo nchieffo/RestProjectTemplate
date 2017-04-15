@@ -29,11 +29,11 @@
 	</filter-mapping>
 	<filter>
 		<description>Questo filtro si occupa di loggare la request e di salvare i dati estratti sulla MDC del logger</description>
-		<filter-name>RequestLoggerFilter</filter-name>
-		<filter-class>it.tecla.utils.web.RequestLoggerFilter</filter-class>
+		<filter-name>RequestMDCFilter</filter-name>
+		<filter-class>it.tecla.utils.web.RequestMDCFilter</filter-class>
 	</filter>
 	<filter-mapping>
-		<filter-name>RequestLoggerFilter</filter-name>
+		<filter-name>RequestMDCFilter</filter-name>
 		<url-pattern>/api/*</url-pattern>
 	</filter-mapping>
 	 
