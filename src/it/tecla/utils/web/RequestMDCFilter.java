@@ -16,10 +16,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 public class RequestMDCFilter implements Filter {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RequestMDCFilter.class);
+
+	public static final Marker RESPONSE = MarkerFactory.getMarker("FLOW.RESPONSE");
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -62,6 +66,8 @@ public class RequestMDCFilter implements Filter {
 			if (referer != null) {
 				MDC.put("req.referer", referer);
 			}
+			
+			// TODO loggare il request body
 
 			String requestLogMessage = getRequestLogMessage();
 			MDC.put("req.logMessage", requestLogMessage);
@@ -71,6 +77,14 @@ public class RequestMDCFilter implements Filter {
 		
 		try {
 			chain.doFilter(request, response);
+			
+			if ("true".equals(MDC.get("resp.doLog"))) {
+				Logger logger = LoggerFactory.getLogger(MDC.get("resp.doLog.logger"));
+				
+				// TODO loggare la response
+				logger.trace(RESPONSE, "Response {}", response);
+			}
+			
 		} catch (Throwable t) {
 			
 			String requestLogMessage = MDC.get("req.logMessage");
@@ -89,6 +103,7 @@ public class RequestMDCFilter implements Filter {
 			MDC.remove("req.referer");
 			MDC.remove("req.logMessage");
 			MDC.remove("resp.doLog");
+			MDC.remove("resp.doLog.logger");
 		}
 	}
 

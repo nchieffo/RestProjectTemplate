@@ -2,7 +2,6 @@ package it.tecla.utils.logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -12,7 +11,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
@@ -29,10 +27,12 @@ import com.thoughtworks.paranamer.CachingParanamer;
 public class LoggedInterceptor implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Marker REQUEST = MarkerFactory.getMarker("FLOW.REQUEST");
-	private static final Marker ENTER = MarkerFactory.getMarker("FLOW.ENTER");
-	private static final Marker EXIT = MarkerFactory.getMarker("FLOW.EXIT");
-	private static final Marker DURATION = MarkerFactory.getMarker("FLOW.DURATION");
+
+	public static final Marker REQUEST = MarkerFactory.getMarker("FLOW.REQUEST");
+	public static final Marker RESPONSE = MarkerFactory.getMarker("FLOW.RESPONSE");
+	public static final Marker ENTER = MarkerFactory.getMarker("FLOW.ENTER");
+	public static final Marker EXIT = MarkerFactory.getMarker("FLOW.EXIT");
+	public static final Marker DURATION = MarkerFactory.getMarker("FLOW.DURATION");
 	
 	private static final CachingParanamer PARANAMER = new CachingParanamer(new BytecodeReadingParanamer());
 	
@@ -61,9 +61,7 @@ public class LoggedInterceptor implements Serializable {
 			Class<?> beanClass = invocationContext.getTarget().getClass();
 			logger = LoggerFactory.getLogger(beanClass);
 			
-			if (beanClass.getAnnotation(Path.class) != null) {
-				isRestService = true;
-			}
+			// se non ho un metodo assumo che non sia un REST service
 		}
 		
 		String message = null;
@@ -72,7 +70,7 @@ public class LoggedInterceptor implements Serializable {
 		if (logger.isTraceEnabled()) {
 			
 			if (isRestService) {
-				// loggo la request
+				// loggo anche la request
 				logger.trace(REQUEST, "Request {}", MDC.get("req.logMessage"));
 			}
 			
@@ -115,8 +113,9 @@ public class LoggedInterceptor implements Serializable {
 			logger.trace(EXIT, "Exit {}: {}", message, result);
 			
 			if (isRestService) {
-				// TODO lascio il mark per loggare anche la response sulla MDC
+				// lascio il mark per loggare anche la response sulla MDC
 				MDC.put("resp.doLog", "true");
+				MDC.put("resp.doLog.logger", logger.getName());
 			}
 		}
 		
