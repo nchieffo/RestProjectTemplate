@@ -1,14 +1,15 @@
 package it.tecla.examples.logging;
 
-import io.swagger.annotations.Api;
-import it.tecla.utils.logger.Logged;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.Api;
+import it.tecla.utils.logger.Logged;
 
 @Api("Logger")
 @Path("/logger")
@@ -17,6 +18,13 @@ import org.slf4j.LoggerFactory;
 public class LoggerRestService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(LoggerRestService.class);
+	
+	@GET
+	@Path("/message")
+	public String message(@QueryParam("message") String message) {
+		LOGGER.debug("LoggerRestService.message -> {}", message);
+		return "OK";
+	}
 
 	@GET
 	@Path("/debug")

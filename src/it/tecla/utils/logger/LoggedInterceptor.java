@@ -2,10 +2,16 @@ package it.tecla.utils.logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -14,6 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.CachingParanamer;
 
 @Logged
 @Interceptor
@@ -24,6 +33,8 @@ public class LoggedInterceptor implements Serializable {
 	private static final Marker ENTER = MarkerFactory.getMarker("FLOW.ENTER");
 	private static final Marker EXIT = MarkerFactory.getMarker("FLOW.EXIT");
 	private static final Marker DURATION = MarkerFactory.getMarker("FLOW.DURATION");
+	
+	private static final CachingParanamer PARANAMER = new CachingParanamer(new BytecodeReadingParanamer());
 	
 	@AroundInvoke
 	public Object logMethodEntry(InvocationContext invocationContext) throws Exception {
@@ -38,9 +49,12 @@ public class LoggedInterceptor implements Serializable {
 			logger = LoggerFactory.getLogger(beanClass);
 			
 			// vedere se il metodo ha la annotation @Path
-			if (method.getAnnotation(Path.class) != null) {
-				isRestService = true;
-			} else if (beanClass.getAnnotation(Path.class) != null) {
+			if (method.getAnnotation(GET.class) != null || 
+					method.getAnnotation(POST.class) != null|| 
+					method.getAnnotation(PUT.class) != null|| 
+					method.getAnnotation(DELETE.class) != null|| 
+					method.getAnnotation(OPTIONS.class) != null) {
+				
 				isRestService = true;
 			}
 		} else {
@@ -65,7 +79,7 @@ public class LoggedInterceptor implements Serializable {
 			StringBuilder sb = new StringBuilder();
 			
 			if (method == null) {
-				sb.append("new ");
+				sb.append("unknown method ");
 				sb.append(invocationContext.getTarget().getClass().getName());
 			} else {
 				sb.append(method.getDeclaringClass().getName());
@@ -73,11 +87,15 @@ public class LoggedInterceptor implements Serializable {
 				sb.append(method.getName());
 			}
 			
+			String[] parameterNames = PARANAMER.lookupParameterNames(method);
+			
 			sb.append("(");
 			for (int i=0; i<invocationContext.getParameters().length; i++) {
 				if (i != 0) {
 					sb.append(", ");
 				}
+				sb.append(parameterNames[i]);
+				sb.append("=");
 				sb.append(invocationContext.getParameters()[i]);
 			}
 			sb.append(")");
