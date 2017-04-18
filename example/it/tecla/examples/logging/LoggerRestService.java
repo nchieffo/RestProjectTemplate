@@ -21,8 +21,8 @@ public class LoggerRestService {
 	
 	@GET
 	@Path("/message")
-	public String message(@QueryParam("message") String message) {
-		LOGGER.debug("LoggerRestService.message -> {}", message);
+	public String message(@QueryParam("message") String message, @QueryParam("message2") String message2) {
+		LOGGER.debug("LoggerRestService.message -> {} {}", message, message2);
 		return "OK";
 	}
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration>
-<configuration debug="true" scanPeriod="30 seconds">
+<configuration debug="false" scanPeriod="30 seconds">
 
 	<property name="LOGS_HOME" value="logs/tecla" />
 
