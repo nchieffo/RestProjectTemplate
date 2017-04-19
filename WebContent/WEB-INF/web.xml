@@ -14,6 +14,10 @@
 		<location>/error-handler</location>
 	</error-page>
 	
+	<login-config>
+		<auth-method>BASIC</auth-method>
+	</login-config> 
+	
 	<filter>
 		<description>Forza il character encoding sulla request se non specificato</description>
 		<filter-name>RequestEncodingFilter</filter-name>
@@ -104,11 +108,15 @@
 	<security-role>
 		<role-name>admin</role-name>
 	</security-role>
+	
 	<security-constraint>
 		<display-name>admin</display-name>
 		<web-resource-collection>
 			<web-resource-name>admin</web-resource-name>
 			<url-pattern>/logback/*</url-pattern>
 		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
 	</security-constraint>
 </web-app>

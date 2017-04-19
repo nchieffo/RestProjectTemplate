@@ -40,7 +40,11 @@ public class ErrorHandlerServlet extends HttpServlet {
 	public static String getRequestData(Throwable t, Integer statusCode, String servletName, HttpServletRequest request) {
 		
 		Map<String, String> reqMdc = (Map<String, String>) request.getAttribute("reqMDC");
-		String logMessage = reqMdc.get("req.logMessage");
+		
+		String logMessage = null;
+		if (reqMdc != null) {
+			logMessage = reqMdc.get("req.logMessage");
+		}
 
 		StringBuilder sb = new StringBuilder();
 
@@ -49,7 +53,9 @@ public class ErrorHandlerServlet extends HttpServlet {
 		sb.append("Servlet Name: " + servletName + "\n");
 		sb.append("Status Code: " + statusCode + "\n");
 		sb.append("Exception Name: " + t.getClass().getName() + "\n");
-		sb.append(logMessage);
+		if (logMessage != null) {
+			sb.append(logMessage);
+		}
 		sb.append("\n\n");
 		
 		return sb.toString();
