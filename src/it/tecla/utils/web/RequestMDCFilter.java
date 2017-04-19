@@ -47,7 +47,12 @@ public class RequestMDCFilter implements Filter {
 		if (request instanceof HttpServletRequest) {
 			HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 			
-			MDC.put("req.uuid", UUID.randomUUID().toString());
+			String reqUuid = request.getParameter("req.uuid");
+			if (reqUuid == null) {
+				reqUuid = UUID.randomUUID().toString();
+			}
+			
+			MDC.put("req.uuid", reqUuid);
 			MDC.put("req.method", httpServletRequest.getMethod());
 			MDC.put("req.requestURI", httpServletRequest.getRequestURI());
 			

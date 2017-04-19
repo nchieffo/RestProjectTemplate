@@ -77,7 +77,6 @@
 		<description>Questa servlet stampa le eccezioni</description>
 		<servlet-name>ErrorHandlerServlet</servlet-name>
 		<servlet-class>it.tecla.utils.web.ErrorHandlerServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>ErrorHandlerServlet</servlet-name>
