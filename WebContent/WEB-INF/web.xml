@@ -83,6 +83,17 @@
 		<servlet-name>ErrorHandlerServlet</servlet-name>
 		<url-pattern>/error-handler</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<description>Questa servlet consente di configurare runtime i livelli di logging di logback</description>
+		<servlet-name>logback</servlet-name>
+		<servlet-class>it.tecla.utils.logger.logback.LogbackServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>logback</servlet-name>
+		<url-pattern>/logback/*</url-pattern>
+	</servlet-mapping>
 	
 	<resource-ref>
 		<res-ref-name>mail/Session</res-ref-name>
