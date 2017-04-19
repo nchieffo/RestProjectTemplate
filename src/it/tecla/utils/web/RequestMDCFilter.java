@@ -25,15 +25,18 @@ public class RequestMDCFilter implements Filter {
 
 	public static final Marker RESPONSE = MarkerFactory.getMarker("FLOW.RESPONSE");
 	
+	private String earName;
+	private String warName;
+	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		
 		try {
-			String earName = (String) InitialContext.doLookup("java:app/AppName");
-			String warName = (String) InitialContext.doLookup("java:module/ModuleName");
+			earName = (String) InitialContext.doLookup("java:app/AppName");
+			warName = (String) InitialContext.doLookup("java:module/ModuleName");
 			
-			MDC.put("earName", earName);
-			MDC.put("warName", warName);
+			LOGGER.info("earName: {}", earName);
+			LOGGER.info("warName: {}", warName);
 			
 		} catch (NamingException ex) {
 			throw new RuntimeException(ex);
@@ -51,6 +54,9 @@ public class RequestMDCFilter implements Filter {
 			if (reqUuid == null) {
 				reqUuid = UUID.randomUUID().toString();
 			}
+			
+			MDC.put("earName", earName);
+			MDC.put("warName", warName);
 			
 			MDC.put("req.uuid", reqUuid);
 			MDC.put("req.method", httpServletRequest.getMethod());
