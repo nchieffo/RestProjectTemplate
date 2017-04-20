@@ -5,7 +5,10 @@ import it.tecla.utils.logger.Logged;
 
 import java.util.Date;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
@@ -45,6 +48,35 @@ public class ModelRestService {
 
 		return model;
 		
+	}
+	
+	@POST
+	@Path("/post/form")
+	@Consumes("application/x-www-form-urlencoded")
+	public Model postForm(@FormParam("booleanValue") boolean booleanValue,
+			@FormParam("dateValue") Date dateValue,
+			@FormParam("doubleValue") Double doubleValue,
+			@FormParam("floatValue") Float floatValue,
+			@FormParam("intValue") Integer intValue,
+			@FormParam("stringValue") String stringValue
+			) {
+		
+		Model model = new Model();
+		model.setBooleanValue(booleanValue);
+		model.setDateValue(dateValue);
+		model.setDoubleValue(doubleValue);
+		model.setFloatValue(floatValue);
+		model.setIntValue(intValue);
+		model.setStringValue(stringValue);
+		
+		return model;
+	}
+	
+	@POST
+	@Path("/post/json")
+	@Consumes("application/json")
+	public Model postJson(Model model) {
+		return model;
 	}
 	
 	@GET

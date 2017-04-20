@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
@@ -19,13 +19,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 @Provider
 @Consumes({"application/json", "text/json"})
 @Produces({"application/json", "text/json"})
 public class JaxRsJacksonProvider implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
-	
-	public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SZ";
 	
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -41,8 +40,11 @@ public class JaxRsJacksonProvider implements MessageBodyReader<Object>, MessageB
 		mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, true);
 		mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
 		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		mapper.setDateFormat(new SimpleDateFormat(DATE_FORMAT));
 		mapper.setSerializationInclusion(Include.ALWAYS);
+		
+		StdDateFormat dateFormat = new StdDateFormat();
+		dateFormat.setTimeZone(TimeZone.getDefault());
+		mapper.setDateFormat(dateFormat);
 	}
 
 	@Override
@@ -57,9 +59,7 @@ public class JaxRsJacksonProvider implements MessageBodyReader<Object>, MessageB
 
 	@Override
 	public void writeTo(Object value, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
-		
-		
-	    mapper.writeValue(entityStream, value);
+		mapper.writeValue(entityStream, value);
 	}
 
 	@Override

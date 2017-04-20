@@ -5,10 +5,10 @@ import java.util.Date;
 public class Model {
 
 	private Object nullValue;
-	private boolean booleanValue;
-	private int intValue;
-	private float floatValue;
-	private double doubleValue;
+	private Boolean BooleanValue;
+	private Integer intValue;
+	private Float floatValue;
+	private Double doubleValue;
 	private String stringValue;
 	private Date dateValue;
 	
@@ -18,28 +18,28 @@ public class Model {
 	public void setNullValue(Object nullValue) {
 		this.nullValue = nullValue;
 	}
-	public boolean isBooleanValue() {
-		return booleanValue;
+	public Boolean isBooleanValue() {
+		return BooleanValue;
 	}
-	public void setBooleanValue(boolean booleanValue) {
-		this.booleanValue = booleanValue;
+	public void setBooleanValue(Boolean BooleanValue) {
+		this.BooleanValue = BooleanValue;
 	}
-	public int getIntValue() {
+	public Integer getIntValue() {
 		return intValue;
 	}
-	public void setIntValue(int intValue) {
+	public void setIntValue(Integer intValue) {
 		this.intValue = intValue;
 	}
-	public float getFloatValue() {
+	public Float getFloatValue() {
 		return floatValue;
 	}
-	public void setFloatValue(float floatValue) {
+	public void setFloatValue(Float floatValue) {
 		this.floatValue = floatValue;
 	}
-	public double getDoubleValue() {
+	public Double getDoubleValue() {
 		return doubleValue;
 	}
-	public void setDoubleValue(double doubleValue) {
+	public void setDoubleValue(Double doubleValue) {
 		this.doubleValue = doubleValue;
 	}
 	public String getStringValue() {
@@ -53,6 +53,12 @@ public class Model {
 	}
 	public void setDateValue(Date dateValue) {
 		this.dateValue = dateValue;
+	}
+	@Override
+	public String toString() {
+		return "Model [nullValue=" + nullValue + ", BooleanValue=" + BooleanValue + ", intValue=" + intValue
+				+ ", floatValue=" + floatValue + ", doubleValue=" + doubleValue + ", stringValue=" + stringValue
+				+ ", dateValue=" + dateValue + "]";
 	}
 	
 }
