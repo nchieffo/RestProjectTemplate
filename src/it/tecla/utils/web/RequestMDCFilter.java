@@ -11,6 +11,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -50,15 +51,21 @@ public class RequestMDCFilter implements Filter {
 		if (request instanceof HttpServletRequest) {
 			HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 			
-			String reqUuid = request.getParameter("req.uuid");
-			if (reqUuid == null) {
-				reqUuid = UUID.randomUUID().toString();
+			String reqLogId = request.getParameter("req.logId");
+			if (reqLogId == null) {
+				Cookie cookie = getCookie(httpServletRequest, "req.logId");
+				if (cookie != null) {
+					reqLogId = cookie.getValue();
+				}
+			}
+			if (reqLogId == null) {
+				reqLogId = UUID.randomUUID().toString();
 			}
 			
 			MDC.put("earName", earName);
 			MDC.put("warName", warName);
 			
-			MDC.put("req.uuid", reqUuid);
+			MDC.put("req.logId", reqLogId);
 			MDC.put("req.method", httpServletRequest.getMethod());
 			MDC.put("req.requestURI", httpServletRequest.getRequestURI());
 			
@@ -105,7 +112,7 @@ public class RequestMDCFilter implements Filter {
 			throw new ServletException(t);
 			
 		} finally {
-			MDC.remove("req.uuid");
+			MDC.remove("req.logId");
 			MDC.remove("req.method");
 			MDC.remove("req.requestURI");
 			MDC.remove("req.queryString");
@@ -128,7 +135,7 @@ public class RequestMDCFilter implements Filter {
 		String method = MDC.get("req.method");
 		String requestURI = MDC.get("req.requestURI");
 		String queryString = MDC.get("req.queryString");
-		String uuid = MDC.get("req.uuid");
+		String logId = MDC.get("req.logId");
 		String user = MDC.get("req.user");
 		String accept = MDC.get("req.accept");
 		String referer = MDC.get("req.referer");
@@ -146,8 +153,8 @@ public class RequestMDCFilter implements Filter {
 		}
 
 		logMessage.append("\n");
-		logMessage.append("Request UUID = ");
-		logMessage.append(uuid);
+		logMessage.append("Request log ID = ");
+		logMessage.append(logId);
 
 		if (user != null) {
 			logMessage.append("\n");
@@ -168,6 +175,18 @@ public class RequestMDCFilter implements Filter {
 		}
 		
 		return logMessage.toString();
+	}
+	
+	protected Cookie getCookie(HttpServletRequest request, String name) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(name)) {
+					return cookie;
+				}
+			}
+		}
+		return null;
 	}
 
 }
