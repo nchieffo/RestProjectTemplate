@@ -13,18 +13,17 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
+
+import it.tecla.utils.logger.LoggedInterceptor;
 
 public class RequestMDCFilter implements Filter {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RequestMDCFilter.class);
-
-	public static final Marker RESPONSE = MarkerFactory.getMarker("FLOW.RESPONSE");
 	
 	private String earName;
 	private String warName;
@@ -85,7 +84,18 @@ public class RequestMDCFilter implements Filter {
 				MDC.put("req.referer", referer);
 			}
 			
-			// TODO loggare il request body
+			// per loggare il request body devo avere un wrapper che mi salva il body in modo tale che possa poi essere riletto normalmente
+			MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(httpServletRequest);
+			MultiReadHttpServletResponse multiReadResponse = new MultiReadHttpServletResponse((HttpServletResponse) response);
+			request = multiReadRequest;
+			response = multiReadResponse;
+			
+			try {
+				String body = multiReadRequest.getCopiedInput();
+				MDC.put("req.body", body);
+			} catch (Throwable t) {
+				LOGGER.warn("Error while copying the request input", t);
+			}
 
 			String requestLogMessage = getRequestLogMessage();
 			MDC.put("req.logMessage", requestLogMessage);
@@ -97,10 +107,16 @@ public class RequestMDCFilter implements Filter {
 			chain.doFilter(request, response);
 			
 			if ("true".equals(MDC.get("resp.doLog"))) {
-				Logger logger = LoggerFactory.getLogger(MDC.get("resp.doLog.logger"));
-				
-				// TODO loggare la response
-				logger.trace(RESPONSE, "Response {}", response);
+				if (response instanceof MultiReadHttpServletResponse) {
+					MultiReadHttpServletResponse multiReadResponse = (MultiReadHttpServletResponse) response;
+					try {
+						String responseBody = multiReadResponse.getCopiedOutput();
+						// TODO migliorare tramite l'utilizzo di eventi
+						LoggedInterceptor.logResponse(responseBody);
+					} catch (Throwable t) {
+						LOGGER.warn("Error while copying the response output", t);
+					}
+				}
 			}
 			
 		} catch (Throwable t) {
@@ -130,7 +146,7 @@ public class RequestMDCFilter implements Filter {
 		
 	}
 	
-	protected String getRequestLogMessage() {
+	public static String getRequestLogMessage() {
 
 		String method = MDC.get("req.method");
 		String requestURI = MDC.get("req.requestURI");
@@ -139,10 +155,10 @@ public class RequestMDCFilter implements Filter {
 		String user = MDC.get("req.user");
 		String accept = MDC.get("req.accept");
 		String referer = MDC.get("req.referer");
+		String body = MDC.get("req.body");
 
 		StringBuilder logMessage = new StringBuilder();
 		
-		logMessage.append("\n");
 		logMessage.append(method);
 		logMessage.append(" ");
 		logMessage.append(requestURI);
@@ -173,11 +189,17 @@ public class RequestMDCFilter implements Filter {
 			logMessage.append("Referer = ");
 			logMessage.append(referer);
 		}
+	
+		if (body != null) {
+			logMessage.append("\n");
+			logMessage.append("Body = ");
+			logMessage.append(body);
+		}
 		
 		return logMessage.toString();
 	}
 	
-	protected Cookie getCookie(HttpServletRequest request, String name) {
+	public static Cookie getCookie(HttpServletRequest request, String name) {
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {

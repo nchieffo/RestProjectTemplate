@@ -40,29 +40,8 @@ public class LoggedInterceptor implements Serializable {
 	public Object logMethodEntry(InvocationContext invocationContext) throws Exception {
 		
 		Method method = invocationContext.getMethod();
-		Logger logger;
-		
-		boolean isRestService = false;
-		
-		if (method != null) {
-			Class<?> beanClass = method.getDeclaringClass();
-			logger = LoggerFactory.getLogger(beanClass);
-			
-			// vedere se il metodo ha la annotation @Path
-			if (method.getAnnotation(GET.class) != null || 
-					method.getAnnotation(POST.class) != null|| 
-					method.getAnnotation(PUT.class) != null|| 
-					method.getAnnotation(DELETE.class) != null|| 
-					method.getAnnotation(OPTIONS.class) != null) {
-				
-				isRestService = true;
-			}
-		} else {
-			Class<?> beanClass = invocationContext.getTarget().getClass();
-			logger = LoggerFactory.getLogger(beanClass);
-			
-			// se non ho un metodo assumo che non sia un REST service
-		}
+		Logger logger = getLogger(invocationContext);
+		boolean isRestService = isRestService(invocationContext);
 		
 		String message = null;
 		long startTime = 0;
@@ -71,13 +50,13 @@ public class LoggedInterceptor implements Serializable {
 			
 			if (isRestService) {
 				// loggo anche la request
-				logger.trace(REQUEST, "Request {}", MDC.get("req.logMessage"));
+				logger.trace(REQUEST, "Request:\n{}", MDC.get("req.logMessage"));
 			}
 			
 			StringBuilder sb = new StringBuilder();
 			
 			if (method == null) {
-				sb.append("unknown method ");
+				sb.append("<UNKNOWN_METHOD>");
 				sb.append(invocationContext.getTarget().getClass().getName());
 			} else {
 				sb.append(method.getDeclaringClass().getName());
@@ -120,6 +99,52 @@ public class LoggedInterceptor implements Serializable {
 		}
 		
 		return result;
+	}
+	
+	public static void logResponse(String responseBody) {
+		Logger logger = LoggerFactory.getLogger(MDC.get("resp.doLog.logger"));
+		logger.trace(LoggedInterceptor.RESPONSE, "Response: {}", responseBody);
+	}
+	
+	public boolean isRestService(InvocationContext invocationContext) {
+		
+		boolean isRestService = false;
+		
+		Method method = invocationContext.getMethod();
+		
+		if (method != null) {
+			
+			// vedere se il metodo ha la annotation @Path
+			if (method.getAnnotation(GET.class) != null || 
+					method.getAnnotation(POST.class) != null|| 
+					method.getAnnotation(PUT.class) != null|| 
+					method.getAnnotation(DELETE.class) != null|| 
+					method.getAnnotation(OPTIONS.class) != null) {
+				
+				isRestService = true;
+			}
+		} else {
+			// se non ho un Method assumo che non sia un REST service
+		}
+		
+		return isRestService;
+	}
+	
+	public Logger getLogger(InvocationContext invocationContext) {
+		
+		Logger logger;
+		
+		Method method = invocationContext.getMethod();
+		
+		if (method != null) {
+			Class<?> beanClass = method.getDeclaringClass();
+			logger = LoggerFactory.getLogger(beanClass);
+		} else {
+			Class<?> beanClass = invocationContext.getTarget().getClass();
+			logger = LoggerFactory.getLogger(beanClass);
+		}
+		
+		return logger;
 	}
 
 }
