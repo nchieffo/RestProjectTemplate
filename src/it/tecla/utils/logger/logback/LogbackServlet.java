@@ -1,5 +1,20 @@
 package it.tecla.utils.logger.logback;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.net.URL;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.LoggerFactory;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
@@ -9,23 +24,6 @@ import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.util.List;
 
 public class LogbackServlet extends HttpServlet {
 
@@ -37,18 +35,24 @@ public class LogbackServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		String logFile = req.getParameter("logFile");
+		String lines = req.getParameter("lines");
 		if (logFile != null) {
-			
+
 			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 			ch.qos.logback.classic.Logger logger = lc.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 			FileAppender<ILoggingEvent> appender = (FileAppender<ILoggingEvent>) logger.getAppender(logFile);
 			String fileName = appender.getFile();
-			
+
 			File file = FileUtils.getFile(fileName);
-			InputStream is = new FileInputStream(file);
 			
-			IOUtils.copy(is, resp.getOutputStream());
+			int linesInt = 100;
+			if (lines != null) {
+				linesInt = Integer.parseInt(lines);
+			}
 			
+			String logContent = tail(file, linesInt);
+			resp.getWriter().append(logContent);
+
 		} else {
 			printLoggers(resp);
 		}
@@ -116,7 +120,7 @@ public class LogbackServlet extends HttpServlet {
 				+ "<option value='TRACE_FILE' selected='selected'>trace.log</option>"
 				+ "<option value='INFO_FILE'>info.log</option>"
 				+ "<option value='ERROR_FILE'>error.log</option>"
-				+ "</select></div><div class='three columns'><input class='button-primary' value='Show log file' type='submit'></div></div></form></div>";
+				+ "</select></div><div class='three columns'>Read last <input type='number' name='lines' value='100' style='width: 100px;'> lines</div><div class='three columns'><input class='button-primary' value='Show log file' type='submit'></div></div></form></div>";
 		String configureLoggerForm = "<h5>Configuration</h5><div class='row'><form method='post'><div class='row'><div class=''><input class='u-full-width' id='loggerName' name='loggerName' type='text' value='"
 				+ DEFAULT_LOGGER_NAME
 				+ "'></div></div><div class='row'><div class='two columns'><select class='u-full-width' id='level' name='level'><option value='all'>all</option><option value='trace'>trace</option><option value='debug' selected='selected'>debug</option><option value='info'>info</option><option value='warn'>warn</option><option value='error'>error</option><option value='off'>off</option></select></div><div class='three columns'><input class='button-primary' value='Reconfigure logger' type='submit'></div><div class='three columns'><input name='reloadFromDisk' value='Clear/Reload from disk !' type='submit'></div></div></form></div>";
@@ -132,5 +136,44 @@ public class LogbackServlet extends HttpServlet {
 		}
 
 		return header + showLogFiles + configureLoggerForm + loggersTableStart + loggersTableRows + loggersTableEnd + footer;
+	}
+
+	public String tail(File file, int lines) throws IOException {
+		RandomAccessFile fileHandler = null;
+		try {
+			fileHandler = new RandomAccessFile(file, "r");
+			long fileLength = fileHandler.length() - 1;
+			StringBuilder sb = new StringBuilder();
+			int line = 0;
+
+			for (long filePointer = fileLength; filePointer != -1; filePointer--) {
+				fileHandler.seek(filePointer);
+				int readByte = fileHandler.readByte();
+
+				if (readByte == 0xA) {
+					if (filePointer < fileLength) {
+						line = line + 1;
+					}
+				} else if (readByte == 0xD) {
+					if (filePointer < fileLength - 1) {
+						line = line + 1;
+					}
+				}
+				if (line >= lines) {
+					break;
+				}
+				sb.append((char) readByte);
+			}
+
+			String lastLine = sb.reverse().toString();
+			return lastLine;
+		} finally {
+			if (fileHandler != null) {
+				try {
+					fileHandler.close();
+				} catch (IOException e) {
+				}
+			}
+		}
 	}
 }
