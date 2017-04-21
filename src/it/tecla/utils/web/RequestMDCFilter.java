@@ -119,18 +119,6 @@ public class RequestMDCFilter implements Filter {
 				}
 			}
 			
-		} catch (Throwable t) {
-			
-			String requestLogMessage = MDC.get("req.logMessage");
-			
-			LOGGER.error("Uncaught exception while executing request {}", requestLogMessage, t);
-			
-			if (t instanceof RuntimeException) {
-				throw (RuntimeException)t;
-			}
-			
-			throw new ServletException(t);
-			
 		} finally {
 			MDC.remove("req.logId");
 			MDC.remove("req.method");
@@ -194,7 +182,7 @@ public class RequestMDCFilter implements Filter {
 			logMessage.append(referer);
 		}
 	
-		if (body != null) {
+		if (body != null && !body.isEmpty()) {
 			logMessage.append("\n");
 			logMessage.append("Body = ");
 			logMessage.append(body);

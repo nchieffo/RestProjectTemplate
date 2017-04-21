@@ -11,10 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ErrorHandlerServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ErrorHandlerServlet.class);
 	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -24,6 +28,8 @@ public class ErrorHandlerServlet extends HttpServlet {
 		String servletName = (String) request.getAttribute("javax.servlet.error.servlet_name");
 		
 		String requestData = getRequestData(t, statusCode, servletName, request);
+		
+		LOGGER.error("Uncaught exception while executing request {}", requestData, t);
 
 		response.setContentType("text/plain");
 

@@ -73,7 +73,7 @@
 	<appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
 		<sessionViaJNDI>true</sessionViaJNDI>
 		<jndiLocation>java:comp/env/mail/Session</jndiLocation>
-		<to>n.chieffo@tecla.it,tecla@tecla.local</to>
+		<to>n.chieffo@tecla.it</to>
 		<from>errors@tecla.it</from>
 		<subject>ERROR NOTIFICATION - %mdc{earName}</subject>
 		<asynchronousSending>false</asynchronousSending>
