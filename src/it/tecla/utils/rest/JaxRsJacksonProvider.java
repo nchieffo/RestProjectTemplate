@@ -5,12 +5,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.util.Date;
 import java.util.TimeZone;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
@@ -69,7 +75,11 @@ public class JaxRsJacksonProvider implements MessageBodyReader<Object>, MessageB
 
 	@Override
 	public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException {
-		return mapper.readValue(entityStream, type);
+		try {
+			return mapper.readValue(entityStream, type);
+		} catch (Throwable t) {
+			throw new WebApplicationException(t, Response.status(400).entity(t.getMessage()).type("text/plain").build());
+		}
 	}
 	
 	protected boolean isJsonType(MediaType mediaType) {
