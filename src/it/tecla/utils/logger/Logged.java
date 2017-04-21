@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.enterprise.util.Nonbinding;
 import javax.interceptor.InterceptorBinding;
 
 @Inherited
@@ -14,4 +15,10 @@ import javax.interceptor.InterceptorBinding;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Logged {
 
+	@Nonbinding public boolean includeRequest() default false;
+	@Nonbinding public boolean includeResponse() default false;
+	@Nonbinding public boolean includeDuration() default true;
+	@Nonbinding public boolean includeEntry() default true;
+	@Nonbinding public boolean includeExit() default true;
+	
 }

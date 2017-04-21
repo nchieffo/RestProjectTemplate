@@ -1,16 +1,12 @@
 package it.tecla.utils.logger;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
@@ -41,14 +37,14 @@ public class LoggedInterceptor implements Serializable {
 		
 		Method method = invocationContext.getMethod();
 		Logger logger = getLogger(invocationContext);
-		boolean isRestService = isRestService(invocationContext);
+		Logged logged = getLogged(invocationContext);
 		
 		String message = null;
 		long startTime = 0;
 		
 		if (logger.isTraceEnabled()) {
 			
-			if (isRestService) {
+			if (logged.includeRequest()) {
 				// loggo anche la request
 				logger.trace(REQUEST, "Request:\n{}", MDC.get("req.logMessage"));
 			}
@@ -78,20 +74,31 @@ public class LoggedInterceptor implements Serializable {
 			sb.append(")");
 			
 			message = sb.toString();
-			logger.trace(ENTER, "Enter {}", message);
 			
-			startTime = System.currentTimeMillis();
+			if (logged.includeEntry()) {
+				logger.trace(ENTER, "Enter {}", message);
+			}
+			
+			if (logged.includeDuration()) {
+				startTime = System.currentTimeMillis();
+			}
 		}
 
 		Object result = invocationContext.proceed();
 		
 		if (message != null) {
-			long elapsed = System.currentTimeMillis() - startTime;
-			String duration = DurationFormatUtils.formatDuration(elapsed, "s's' S'ms'");
-			logger.trace(DURATION, "Duration {}: {}", message, duration);
-			logger.trace(EXIT, "Exit {}: {}", message, result);
 			
-			if (isRestService) {
+			if (logged.includeDuration()) {
+				long elapsed = System.currentTimeMillis() - startTime;
+				String duration = DurationFormatUtils.formatDuration(elapsed, "s's' S'ms'");
+				logger.trace(DURATION, "Duration {}: {}", message, duration);
+			}
+			
+			if (logged.includeExit()) {
+				logger.trace(EXIT, "Exit {}: {}", message, result);
+			}
+			
+			if (logged.includeResponse()) {
 				// lascio il mark per loggare anche la response sulla MDC
 				MDC.put("resp.doLog", "true");
 				MDC.put("resp.doLog.logger", logger.getName());
@@ -106,28 +113,83 @@ public class LoggedInterceptor implements Serializable {
 		logger.trace(LoggedInterceptor.RESPONSE, "Response: {}", responseBody);
 	}
 	
-	public boolean isRestService(InvocationContext invocationContext) {
+//	public boolean isRestService(InvocationContext invocationContext) {
+//		
+//		boolean isRestService = false;
+//		
+//		Method method = invocationContext.getMethod();
+//		
+//		if (method != null) {
+//			
+//			// vedere se il metodo ha la annotation @Path
+//			if (method.getAnnotation(GET.class) != null || 
+//					method.getAnnotation(POST.class) != null|| 
+//					method.getAnnotation(PUT.class) != null|| 
+//					method.getAnnotation(DELETE.class) != null|| 
+//					method.getAnnotation(OPTIONS.class) != null) {
+//				
+//				isRestService = true;
+//			}
+//		} else {
+//			// se non ho un Method assumo che non sia un REST service
+//		}
+//		
+//		return isRestService;
+//	}
+	
+	public Logged getLogged(InvocationContext invocationContext) {
 		
-		boolean isRestService = false;
-		
+		Logged logged = null;
 		Method method = invocationContext.getMethod();
 		
 		if (method != null) {
+			logged = method.getAnnotation(Logged.class);
 			
-			// vedere se il metodo ha la annotation @Path
-			if (method.getAnnotation(GET.class) != null || 
-					method.getAnnotation(POST.class) != null|| 
-					method.getAnnotation(PUT.class) != null|| 
-					method.getAnnotation(DELETE.class) != null|| 
-					method.getAnnotation(OPTIONS.class) != null) {
-				
-				isRestService = true;
+			if (logged == null) {
+				logged = method.getDeclaringClass().getAnnotation(Logged.class);
 			}
-		} else {
-			// se non ho un Method assumo che non sia un REST service
 		}
 		
-		return isRestService;
+		if (logged == null) {
+			logged = invocationContext.getTarget().getClass().getAnnotation(Logged.class);
+		}
+		
+		if (logged == null) {
+			logged = new Logged() {
+				
+				@Override
+				public Class<? extends Annotation> annotationType() {
+					return Logged.class;
+				}
+				
+				@Override
+				public boolean includeResponse() {
+					return false;
+				}
+				
+				@Override
+				public boolean includeRequest() {
+					return false;
+				}
+				
+				@Override
+				public boolean includeDuration() {
+					return true;
+				}
+				
+				@Override
+				public boolean includeEntry() {
+					return true;
+				}
+				
+				@Override
+				public boolean includeExit() {
+					return true;
+				}
+			};
+		}
+		
+		return logged;
 	}
 	
 	public Logger getLogger(InvocationContext invocationContext) {
