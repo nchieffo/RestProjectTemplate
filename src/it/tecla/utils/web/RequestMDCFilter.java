@@ -125,6 +125,10 @@ public class RequestMDCFilter implements Filter {
 			
 			LOGGER.error("Uncaught exception while executing request {}", requestLogMessage, t);
 			
+			if (t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			}
+			
 			throw new ServletException(t);
 			
 		} finally {
