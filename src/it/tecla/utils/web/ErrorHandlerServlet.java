@@ -56,6 +56,8 @@ public class ErrorHandlerServlet extends HttpServlet {
 
 		sb.append(new Date().toString() + "\n");
 		sb.append("\n");
+		sb.append("Server Info: " + WebAppDataListener.getCellName() + "/" + WebAppDataListener.getNodeName() + "/" + WebAppDataListener.getServerName() + "\n");
+		sb.append("Package Info: " + WebAppDataListener.getEarName() + "/" + WebAppDataListener.getWarName() + "\n");
 		sb.append("Servlet Name: " + servletName + "\n");
 		sb.append("Status Code: " + statusCode + "\n");
 		sb.append("Exception Name: " + t.getClass().getName() + "\n");

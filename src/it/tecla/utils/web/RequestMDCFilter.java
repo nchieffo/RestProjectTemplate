@@ -3,8 +3,6 @@ package it.tecla.utils.web;
 import java.io.IOException;
 import java.util.UUID;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -25,22 +23,8 @@ public class RequestMDCFilter implements Filter {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RequestMDCFilter.class);
 	
-	private String earName;
-	private String warName;
-	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		
-		try {
-			earName = (String) InitialContext.doLookup("java:app/AppName");
-			warName = (String) InitialContext.doLookup("java:module/ModuleName");
-			
-			LOGGER.info("earName: {}", earName);
-			LOGGER.info("warName: {}", warName);
-			
-		} catch (NamingException ex) {
-			throw new RuntimeException(ex);
-		}
 		
 	}
 
@@ -61,8 +45,7 @@ public class RequestMDCFilter implements Filter {
 				reqLogId = UUID.randomUUID().toString();
 			}
 			
-			MDC.put("earName", earName);
-			MDC.put("warName", warName);
+			WebAppDataListener.setupMDC();
 			
 			MDC.put("req.logId", reqLogId);
 			MDC.put("req.method", httpServletRequest.getMethod());
@@ -111,7 +94,6 @@ public class RequestMDCFilter implements Filter {
 					MultiReadHttpServletResponse multiReadResponse = (MultiReadHttpServletResponse) response;
 					try {
 						String responseBody = multiReadResponse.getCopiedOutput();
-						// TODO migliorare tramite l'utilizzo di eventi (?)
 						LoggedInterceptor.logResponse(responseBody);
 					} catch (Throwable t) {
 						LOGGER.warn("Error while copying the response output", t);

@@ -75,7 +75,7 @@
 		<jndiLocation>java:comp/env/mail/Session</jndiLocation>
 		<to>n.chieffo@tecla.it</to>
 		<from>errors@tecla.it</from>
-		<subject>ERROR NOTIFICATION - %mdc{earName}</subject>
+		<subject>ERROR NOTIFICATION - %mdc{earName} - %mdc{cellName}/%mdc{nodeName}</subject>
 		<asynchronousSending>false</asynchronousSending>
 		
 		<layout class="ch.qos.logback.classic.html.HTMLLayout">

@@ -119,4 +119,8 @@
 			<role-name>admin</role-name>
 		</auth-constraint>
 	</security-constraint>
+	<listener>
+		<display-name>WebAppDataListener</display-name>
+		<listener-class>it.tecla.utils.web.WebAppDataListener</listener-class>
+	</listener>
 </web-app>
