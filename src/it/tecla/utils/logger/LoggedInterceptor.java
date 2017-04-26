@@ -126,6 +126,7 @@ public class LoggedInterceptor implements Serializable {
 			LOGGER.warn("error in Logged Interceptor before invoking real method", t);
 		}
 
+		// invocazione del metodo reale
 		Object result = invocationContext.proceed();
 		
 		try {
@@ -142,7 +143,8 @@ public class LoggedInterceptor implements Serializable {
 				}
 				
 				if (logged.includeResponse()) {
-					// lascio il mark per loggare anche la response sulla MDC
+					// in questo punto non ho ancora la response, per cui
+					// lascio un flag che sarà letto dal RequestMDCFilter
 					MDC.put("resp.doLog", "true");
 					MDC.put("resp.doLog.logger", logger.getName());
 				}

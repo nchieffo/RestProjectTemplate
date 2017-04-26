@@ -84,7 +84,7 @@ public class RequestMDCFilter implements Filter {
 				MDC.put("req.referer", referer);
 			}
 			
-			// per loggare il request body devo avere un wrapper che mi salva il body in modo tale che possa poi essere riletto normalmente
+			// per loggare la request/response devo avere un wrapper che mi salva il body in modo tale che possa poi essere riletto normalmente
 			MultiReadHttpServletRequest multiReadRequest = new MultiReadHttpServletRequest(httpServletRequest);
 			MultiReadHttpServletResponse multiReadResponse = new MultiReadHttpServletResponse((HttpServletResponse) response);
 			request = multiReadRequest;
@@ -111,7 +111,7 @@ public class RequestMDCFilter implements Filter {
 					MultiReadHttpServletResponse multiReadResponse = (MultiReadHttpServletResponse) response;
 					try {
 						String responseBody = multiReadResponse.getCopiedOutput();
-						// TODO migliorare tramite l'utilizzo di eventi
+						// TODO migliorare tramite l'utilizzo di eventi (?)
 						LoggedInterceptor.logResponse(responseBody);
 					} catch (Throwable t) {
 						LOGGER.warn("Error while copying the response output", t);
