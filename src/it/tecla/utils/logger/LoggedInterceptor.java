@@ -31,78 +31,124 @@ public class LoggedInterceptor implements Serializable {
 	public static final Marker DURATION = MarkerFactory.getMarker("FLOW.DURATION");
 	
 	private static final CachingParanamer PARANAMER = new CachingParanamer(new BytecodeReadingParanamer());
+	private static final Logger LOGGER = LoggerFactory.getLogger(LoggedInterceptor.class);
+	
+	private static Logged DEFAULT_LOGGED_INSTANCE = new Logged() {
+		
+		@Override
+		public Class<? extends Annotation> annotationType() {
+			return Logged.class;
+		}
+		
+		@Override
+		public boolean includeResponse() {
+			return false;
+		}
+		
+		@Override
+		public boolean includeRequest() {
+			return false;
+		}
+		
+		@Override
+		public boolean includeDuration() {
+			return true;
+		}
+		
+		@Override
+		public boolean includeEntry() {
+			return true;
+		}
+		
+		@Override
+		public boolean includeExit() {
+			return true;
+		}
+	};
 	
 	@AroundInvoke
 	public Object logMethodEntry(InvocationContext invocationContext) throws Exception {
 		
-		Method method = invocationContext.getMethod();
-		Logger logger = getLogger(invocationContext);
-		Logged logged = getLogged(invocationContext);
+		Method method = null;
+		Logger logger = null;
+		Logged logged = null;
 		
 		String message = null;
 		long startTime = 0;
 		
-		if (logger.isTraceEnabled()) {
+		try {
+			method = invocationContext.getMethod();
+			logger = getLogger(invocationContext);
+			logged = getLogged(invocationContext);
 			
-			if (logged.includeRequest()) {
-				// loggo anche la request
-				logger.trace(REQUEST, "Request:\n{}", MDC.get("req.logMessage"));
-			}
-			
-			StringBuilder sb = new StringBuilder();
-			
-			if (method == null) {
-				sb.append("<UNKNOWN_METHOD>");
-				sb.append(invocationContext.getTarget().getClass().getName());
-			} else {
-				sb.append(method.getDeclaringClass().getName());
-				sb.append(".");
-				sb.append(method.getName());
-			}
-			
-			String[] parameterNames = PARANAMER.lookupParameterNames(method);
-			
-			sb.append("(");
-			for (int i=0; i<invocationContext.getParameters().length; i++) {
-				if (i != 0) {
-					sb.append(", ");
+			if (logger.isTraceEnabled()) {
+				
+				if (logged.includeRequest()) {
+					// loggo anche la request
+					logger.trace(REQUEST, "Request:\n{}", MDC.get("req.logMessage"));
 				}
-				sb.append(parameterNames[i]);
-				sb.append("=");
-				sb.append(invocationContext.getParameters()[i]);
+				
+				StringBuilder sb = new StringBuilder();
+				
+				if (method == null) {
+					sb.append(invocationContext.getTarget().getClass().getName());
+					sb.append(".<UNKNOWN_METHOD>");
+				} else {
+					sb.append(method.getDeclaringClass().getName());
+					sb.append(".");
+					sb.append(method.getName());
+				}
+				
+				String[] parameterNames = PARANAMER.lookupParameterNames(method);
+				
+				sb.append("(");
+				for (int i=0; i<invocationContext.getParameters().length; i++) {
+					if (i != 0) {
+						sb.append(", ");
+					}
+					sb.append(parameterNames[i]);
+					sb.append("=");
+					sb.append(invocationContext.getParameters()[i]);
+				}
+				sb.append(")");
+				
+				message = sb.toString();
+				
+				if (logged.includeEntry()) {
+					logger.trace(ENTER, "Enter {}", message);
+				}
+				
+				if (logged.includeDuration()) {
+					startTime = System.currentTimeMillis();
+				}
 			}
-			sb.append(")");
-			
-			message = sb.toString();
-			
-			if (logged.includeEntry()) {
-				logger.trace(ENTER, "Enter {}", message);
-			}
-			
-			if (logged.includeDuration()) {
-				startTime = System.currentTimeMillis();
-			}
+		} catch (Throwable t) {
+			LOGGER.warn("error in Logged Interceptor before invoking real method", t);
 		}
 
 		Object result = invocationContext.proceed();
 		
-		if (message != null) {
-			
-			if (logged.includeDuration()) {
-				long elapsed = System.currentTimeMillis() - startTime;
-				String duration = DurationFormatUtils.formatDuration(elapsed, "s's' S'ms'");
-				logger.trace(DURATION, "Duration {}: {}", message, duration);
+		try {
+			if (message != null) {
+				
+				if (logged.includeDuration()) {
+					long elapsed = System.currentTimeMillis() - startTime;
+					String duration = DurationFormatUtils.formatDuration(elapsed, "s's' S'ms'");
+					logger.trace(DURATION, "Duration {}: {}", message, duration);
+				}
+				
+				if (logged.includeExit()) {
+					logger.trace(EXIT, "Exit {}: {}", message, result);
+				}
+				
+				if (logged.includeResponse()) {
+					// lascio il mark per loggare anche la response sulla MDC
+					MDC.put("resp.doLog", "true");
+					MDC.put("resp.doLog.logger", logger.getName());
+				}
 			}
-			
-			if (logged.includeExit()) {
-				logger.trace(EXIT, "Exit {}: {}", message, result);
-			}
-			
-			if (logged.includeResponse()) {
-				// lascio il mark per loggare anche la response sulla MDC
-				MDC.put("resp.doLog", "true");
-				MDC.put("resp.doLog.logger", logger.getName());
-			}
+		} catch (Throwable t) {
+			LOGGER.warn("error in Logged Interceptor after invoking real method", t);
 		}
 		
 		return result;
@@ -155,38 +201,7 @@ public class LoggedInterceptor implements Serializable {
 		}
 		
 		if (logged == null) {
-			logged = new Logged() {
-				
-				@Override
-				public Class<? extends Annotation> annotationType() {
-					return Logged.class;
-				}
-				
-				@Override
-				public boolean includeResponse() {
-					return false;
-				}
-				
-				@Override
-				public boolean includeRequest() {
-					return false;
-				}
-				
-				@Override
-				public boolean includeDuration() {
-					return true;
-				}
-				
-				@Override
-				public boolean includeEntry() {
-					return true;
-				}
-				
-				@Override
-				public boolean includeExit() {
-					return true;
-				}
-			};
+			logged = DEFAULT_LOGGED_INSTANCE;
 		}
 		
 		return logged;
