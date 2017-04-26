@@ -4,8 +4,8 @@
 
 	<property name="LOGS_HOME" value="logs/tecla" />
 	
-	<property name="ROLLING_MAX_HISTORY" value="30" />
-	<property name="ROLLING_TOTAL_SIZE_CAP" value="100MB" />
+	<property name="ROLLING_MAX_HISTORY" value="365" />
+	<property name="ROLLING_TOTAL_SIZE_CAP" value="300MB" />
 	<property name="ROLLING_MAX_FILE_SIZE" value="2MB" />
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
