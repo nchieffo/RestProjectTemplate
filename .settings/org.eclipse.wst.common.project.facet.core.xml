@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faceted-project>
   <runtime name="WebSphere Application Server Liberty"/>
+  <secondary-runtime name="wps.base.v80"/>
   <fixed facet="jst.web"/>
   <fixed facet="jst.jaxrs"/>
   <fixed facet="wst.jsdt.web"/>
