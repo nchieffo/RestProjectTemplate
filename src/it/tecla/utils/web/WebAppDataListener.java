@@ -58,7 +58,9 @@ public class WebAppDataListener implements ServletContextListener {
 			LOGGER.error("Error during RequestMDCFilter initialization.\n"
 					+ "If you are running in WebSphere Liberty please add the following values to your server.xml\n"
 					+ "<jndiEntry value=\"yourCellName\" jndiName=\"thisNode/cell/cellname\" id=\"cellname\"></jndiEntry>\n"
-					+ "<jndiEntry value=\"yourServerName\" jndiName=\"thisNode/nodename\" id=\"nodename\"></jndiEntry>", t);
+					+ "<jndiEntry value=\"yourNodeName\" jndiName=\"thisNode/nodename\" id=\"nodename\"></jndiEntry>"
+					+ "<jndiEntry value=\"yourServer\" jndiName=\"servername\" id=\"servername\"></jndiEntry>"
+					, t);
 		}
 	}
 	
