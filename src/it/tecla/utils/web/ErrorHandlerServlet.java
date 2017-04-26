@@ -1,7 +1,7 @@
 package it.tecla.utils.web;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.Map;
 
@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +34,14 @@ public class ErrorHandlerServlet extends HttpServlet {
 
 		response.setContentType("text/plain");
 
-		PrintWriter out = response.getWriter();
+		OutputStream os = response.getOutputStream();
 		try {
-			out.append(requestData);
-			out.append(ExceptionUtils.getStackTrace(t));
+			IOUtils.write(requestData, os, "UTF-8");
+			IOUtils.write(ExceptionUtils.getStackTrace(t), os, "UTF-8");
 		} finally {
-			out.close();
+			os.flush();
+			os.close();
+			response.flushBuffer();
 		}
 	}
 	
