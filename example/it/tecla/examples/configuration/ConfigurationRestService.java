@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.ConfigurationConverter;
@@ -31,6 +32,12 @@ public class ConfigurationRestService {
 	@Path("/default")
 	public Map<Object, Object> getDefaultConfiguration() {
 		return ConfigurationConverter.getMap(conf);
+	}
+
+	@GET
+	@Path("/default/key")
+	public String getDefaultConfiguration(@QueryParam("key") String key) {
+		return conf.getString(key);
 	}
 
 	@GET
