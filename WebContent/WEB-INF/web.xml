@@ -89,14 +89,21 @@
 
 	<servlet>
 		<description>Questa servlet consente di configurare runtime i livelli di logging di logback</description>
-		<servlet-name>logback</servlet-name>
+		<servlet-name>Logback</servlet-name>
 		<servlet-class>it.tecla.utils.logger.logback.LogbackServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>logback</servlet-name>
+		<servlet-name>Logback</servlet-name>
 		<url-pattern>/logback/*</url-pattern>
 	</servlet-mapping>
+	
+	<listener>
+		<display-name>WebAppDataListener</display-name>
+		<listener-class>
+			it.tecla.utils.web.WebAppDataListener
+		</listener-class>
+	</listener>
 	
 	<resource-ref>
 		<res-ref-name>mail/Session</res-ref-name>
@@ -119,8 +126,5 @@
 			<role-name>admin</role-name>
 		</auth-constraint>
 	</security-constraint>
-	<listener>
-		<display-name>WebAppDataListener</display-name>
-		<listener-class>it.tecla.utils.web.WebAppDataListener</listener-class>
-	</listener>
+	
 </web-app>
