@@ -20,15 +20,15 @@
 	
 	<filter>
 		<description>Forza il character encoding sulla request se non specificato</description>
-		<filter-name>RequestEncodingFilter</filter-name>
-		<filter-class>it.tecla.utils.web.RequestEncodingFilter</filter-class>
+		<filter-name>RequestResponseEncodingFilter</filter-name>
+		<filter-class>it.tecla.utils.web.RequestResponseEncodingFilter</filter-class>
 		<init-param>
 			<param-name>characterEncoding</param-name>
 			<param-value>UTF-8</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>
-		<filter-name>RequestEncodingFilter</filter-name>
+		<filter-name>RequestResponseEncodingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	<filter>

@@ -11,7 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
-public class RequestEncodingFilter implements Filter {
+public class RequestResponseEncodingFilter implements Filter {
 
 	protected String encoding;
 
@@ -41,7 +41,7 @@ public class RequestEncodingFilter implements Filter {
 				@Override
 				public void setContentType(String contentType) {
 					if (contentType != null && contentType.toLowerCase().indexOf("charset=") < 0) {
-						contentType += "; charset=UTF-8";
+						contentType += "; charset=" + encoding;
 					}
 					super.setContentType(contentType);
 				}
